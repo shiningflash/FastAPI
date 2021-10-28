@@ -22,8 +22,7 @@ def main():
 @app.get('/items/{id}')
 def get_items(id: int, q: Optional[str] = None):
     return {
-        "id": id,
-        "q": q
+        "id": id
     }
 
 
