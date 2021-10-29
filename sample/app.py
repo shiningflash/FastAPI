@@ -13,21 +13,21 @@ class Item(BaseModel):
 
 
 @app.get('/')
-def main():
+async def main():
     return {
         "message": "Hello World!"
     }
 
 
 @app.get('/items/{id}')
-def get_items(id: int, q: Optional[str] = None):
+async def get_items(id: int, q: Optional[str] = None):
     return {
         "id": id
     }
 
 
 @app.put('/items/{id}')
-def update_item(id: int, item: Item):
+async def update_item(id: int, item: Item):
     return {
         'id': id,
         'item name': item.name,
