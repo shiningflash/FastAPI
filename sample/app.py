@@ -1,15 +1,23 @@
+from enum import Enum
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from pydantic import BaseModel
 
 app = FastAPI()
 
 
+class CategoryChoice(str, Enum):
+    food = 'food'
+    medicine = 'medicine'
+    stationary = 'stationary'
+
+
 class Item(BaseModel):
     name: str
     price: float
-    active: Optional[bool] = True
+    vat: Optional[bool] = False
+    category: CategoryChoice
 
 
 @app.get('/')
@@ -20,17 +28,26 @@ async def main():
 
 
 @app.get('/items/{id}')
-async def get_items(id: int, q: Optional[str] = None):
+async def get_items(
+        id: int,
+        q: Optional[str] = None,
+        category: CategoryChoice = Query(..., min_length=3, max_length=50, regex="^[0-9]*$")
+    ):
     return {
-        "id": id
+        "id": id,
+        "q": q,
+        "category": category
     }
 
 
 @app.put('/items/{id}')
 async def update_item(id: int, item: Item):
-    return {
-        'id': id,
-        'item name': item.name,
-        'item price': item.price,
-        'active': item.active
-    }
+    item_dict = item.dict()
+    item_dict.update({
+        "id": id
+    })
+    if item.vat:
+        item_dict.update({
+            "price_with_vat": item.price + (item.price * 25) / 100
+        })
+    return item_dict
